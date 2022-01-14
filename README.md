@@ -8,7 +8,7 @@ the follow questions remains open:
 
 1) Is original HESS, with a MaxSAT Oracle, candidate to proof that P=NP, because almost in practice, alwais break the theoretical inaproximability ratio. (this separates the P=NP from P!=NP)
 2) Exist other oracle, like TSP, where the theoretical inapproximability ratio is broken?
-3) Is possible extend HESS with heuristics, like DPLL algorithm or DCDL?
+3) Is possible extend HESS with heuristics, like DPLL algorithm or CDCL?
 4) In definitive, is possible that HESS help to solve the P vs NP question?
 5) Proof or disproof that HESS SAT is Complete for SAT.
 6) Complexity?
