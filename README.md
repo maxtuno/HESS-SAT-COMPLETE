@@ -10,7 +10,7 @@ the follow questions remains open:
 2) Exist other oracle, like TSP, where the theoretical inapproximability ratio is broken?
 3) Is possible extend HESS with heuristics, like DPLL algorithm or DCDL?
 4) In definitive, is possible that HESS help to solve the P vs NP question?
-5) Proof or disproof that HESS Complete is Complete for SAT.
+5) Proof or disproof that HESS SAT is Complete for SAT.
 
 Thanks to all my supporters across the ages, with special mention of all people of foresta.io, ofcourse Daniel Mattes, and my loved wife.
 
