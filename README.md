@@ -13,7 +13,7 @@ the follow questions remains open:
 5) Proof or disproof that HESS SAT is Complete for SAT.
 6) Complexity?
 
-Thanks to all my supporters across the ages, with special mention of all people of foresta.io, ofcourse Daniel Mattes, and my loved wife.
+Thanks to all my supporters across the ages, with special mention of all people of http://www.foresta.io, ofcourse Daniel Mattes, and my loved wife.
 
 This software and is released with MIT licence:
 
