@@ -15,7 +15,7 @@ the follow questions remains open:
 
 Thanks to all my supporters across the ages, with special mention of all people of http://www.foresta.io, ofcourse Daniel Mattes, and my loved wife.
 
-This software and is released with MIT licence:
+This software is released with MIT licence:
 
     usage: hess-sat cnf-instance
 
