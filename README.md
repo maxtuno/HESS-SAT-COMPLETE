@@ -15,7 +15,7 @@ the follow questions remains open:
 
 Thanks to all my supporters across the ages, with special mention of all people of http://www.foresta.io, ofcourse Daniel Mattes, and my loved wife.
 
-usage: hess-sat cnf-instance
+  usage: hess-sat cnf-instance
 
 Remarks: hess_sat_boost.cc with an alternative free collision hashing with boost.
 
