@@ -1,3 +1,26 @@
+/*
+Copyright (c) 2012-2022 Oscar Riveros (@maxtuno, Chile).
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -7,13 +30,13 @@
 
 #include <boost/multiprecision/cpp_int.hpp>
 
-typedef boost::multiprecision::int1024_t integer;
+typedef boost::multiprecision::cpp_int integer;
 
 std::map<integer, bool> db;
 
 integer hashing(const std::vector<int> &sequence) {
     integer hash{0};
-    for (auto i{1}; i < sequence.size(); i++) {
+    for (auto i{0}; i < sequence.size(); i++) {
         hash += sequence[i] << i;
     }
     return hash;
@@ -21,7 +44,7 @@ integer hashing(const std::vector<int> &sequence) {
 
 bool next_orbit(std::vector<int> &sequence) {
     integer key;
-    for (auto i{1}; i < sequence.size(); i++) {
+    for (auto i{0}; i < sequence.size(); i++) {
         key = hashing(sequence);
         if (!db[key]) {
             db[key] = true;
@@ -35,33 +58,29 @@ bool next_orbit(std::vector<int> &sequence) {
     return true;
 }
 
-integer ssp_oracle(std::vector<int> &sequence, const std::vector<integer> &universe) {
-    integer local{universe.front()};
-    for (auto i{1}; i < sequence.size(); i++) {
-        if (sequence[i]) {
-            local += universe[i];
-            if (local >= 0) {
-                return local;
+int maxsat_oracle(std::vector<int> &sequence, const std::vector<std::vector<int>> &clauses) {
+    int local{static_cast<int>(clauses.size())};
+    for (auto &clause: clauses) {
+        for (auto i{0}; i < clause.size(); i++) {
+            if (sequence[abs(clause[i]) - 1] == clause[i] > 0) {
+                local--;
+                break;
             }
         }
     }
-    return -local;
+    return local;
 }
 
-std::vector<int> hess(std::vector<integer> &universe, const int &number_of_variables) {
-    std::sort(universe.begin(), universe.end());
-    std::reverse(universe.begin() + 1, universe.end());
-    integer limit{std::numeric_limits<integer>::max()};
+std::vector<int> hess(const std::vector<std::vector<int>> &clauses, const int &number_of_variables, const int &number_of_clauses) {
     auto n = static_cast<int>(number_of_variables);
     std::vector<int> sequence(n, 0);
-    sequence.front() = 1;
     std::cout.precision(std::numeric_limits<int>::max_digits10 + 1);
-    integer cursor{limit};
+    auto cursor{std::numeric_limits<int>::max()};
     while (next_orbit(sequence)) {
-        integer local{0}, global{limit};
-        for (auto i{1}; i < n; i++) {
+        auto local{0}, global{std::numeric_limits<int>::max()};
+        for (auto i{0}; i < n; i++) {
             sequence[i] = !sequence[i];
-            local = ssp_oracle(sequence, universe);
+            local = maxsat_oracle(sequence, clauses);
             if (local < global) {
                 global = local;
                 if (global < cursor) {
@@ -83,9 +102,9 @@ std::vector<int> hess(std::vector<integer> &universe, const int &number_of_varia
 
 
 int main(int argc, char *argv[]) {
-    int number_of_variables;
+    int number_of_variables, number_of_clauses;
     std::string temporal;
-    std::vector<integer> universe;
+    std::vector<std::vector<int>> clauses;
     std::ifstream file(argv[1]);
     file.seekg(0, std::ifstream::end);
     int length = file.tellg();
@@ -102,13 +121,21 @@ int main(int argc, char *argv[]) {
             std::stringstream line_stream(line);
             if (line.front() == 'p') {
                 line_stream >> temporal; // p
-                line_stream >> temporal; // ssp
+                line_stream >> temporal; // cnf
                 line_stream >> number_of_variables;
+                line_stream >> number_of_clauses;
                 continue;
             }
+            std::vector<int> literals;
             while (line_stream.good()) {
                 line_stream >> temporal;
-                universe.emplace_back(integer(temporal.c_str()));
+                if (temporal.front() == '0') {
+                    continue;
+                }
+                literals.emplace_back(std::atoi(temporal.c_str()));
+            }
+            if (!literals.empty()) {
+                clauses.emplace_back(literals);
             }
         }
     } else {
@@ -118,31 +145,17 @@ int main(int argc, char *argv[]) {
     delete[] buffer;
     temporal.clear();
 
-    auto solution = hess(universe, number_of_variables);
+    auto solution = hess(clauses, number_of_variables, number_of_clauses);
 
     if (!solution.empty()) {
         std::cout << "SAT" << std::endl;
-        std::cout << "[";
-        integer local{};
         for (auto i{0}; i < solution.size(); i++) {
-            if (solution[i]) {
-                local += universe[i];
-                std::cout << universe[i] << ", ";
-                if (local >= 0) {
-                    break;
-                }
-            }
+            std::cout << (solution[i] ? +(i + 1) : -(i + 1)) << " ";
         }
-        std::cout << "]" << std::endl;
+        std::cout << 0 << std::endl;
     } else {
         std::cout << "UNSAT" << std::endl;
     }
 
     return EXIT_SUCCESS;
 }
-// 299143602211297741204568619614507931500043196174228961815838679604385362082070060023736643021
-// 170940884877719966997141193892121109
-// 2282989190483180967303957107017620
-// 850540759120787036555324586910735
-// 35667904713522356584935352659340
-// 167907321433991906607695400224
