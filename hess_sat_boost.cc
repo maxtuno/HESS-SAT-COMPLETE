@@ -36,8 +36,10 @@ std::map<integer, bool> db;
 
 integer hashing(const std::vector<int> &sequence) {
     integer hash{0};
-    for (auto i{0}; i < sequence.size(); i++) {
-        hash += sequence[i] << i;
+    for (auto i{1}; i < sequence.size(); i++) {
+        if (sequence[i]) {
+            hash += integer(1) << i;
+        }
     }
     return hash;
 }
